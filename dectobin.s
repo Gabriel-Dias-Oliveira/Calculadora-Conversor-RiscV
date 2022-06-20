@@ -4,7 +4,30 @@ negativo:
     .word 0x2d
 
 
-test:
+binarynumber:
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
+	.word 0x00000000
 	.word 0x00000000
 	.word 0x00000000
 	.word 0x00000000
@@ -15,19 +38,20 @@ test:
 	.word 0x00000000
 	.word 0x00000000
       
-
 .section .text
 
 
 main:
-    addi t1, zero, 257
+    addi t1, zero, 2147483648
 
-    lui s0, %hi(test)
-    addi s0, s0, %lo(test)
+    lui s0, %hi(binarynumber)
+    addi s0, s0, %lo(binarynumber)
 
     call convertprabin
-    call printnumbin
+    
+    addi s0, s0, -4 
 
+    call printnumbin
 
 convertprabin:
     andi t2, t1, 1
@@ -43,20 +67,17 @@ convertprabin:
     ret 
 
 printnumbin:
-    sub s0, s0, t3 
-
-    lui a0, %hi(test)
-    addi a0, s0, %lo(test)
-
-    addi t0, zero, 3
-    addi a1,zero, 36
-    ecall   
-
     lw a0, 0(s0)
-    addi t0, zero, 3
+
+    beq a0, zero, changetozero
+    bne a0, zero, changetoone
+
+    print:
+
+    addi t0, zero, 2
     ecall
 
-    addi s0, s0, 4
+    addi s0, s0, -4
 
     addi t3, t3, -4
 
@@ -64,5 +85,11 @@ printnumbin:
 
     ret 
 
+changetozero:
+    addi a0, zero, 0x30
+    j print
 
+changetoone:
+    addi a0, zero, 0x31
+    j print
 

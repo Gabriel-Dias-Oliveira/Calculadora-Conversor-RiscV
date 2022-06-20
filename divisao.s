@@ -44,15 +44,13 @@ divide:
     
     slt s6, s5, zero  
     
-    blt s3, t1, glub 
+    bltu s3, t1, glub 
     
     voltadoglub:
-    bgeu s4, t1, glublgub
+    bge s4, t1, glublgub
 
     voltadoglubglub:
     slli t0, t0, 1
-
-    
 
     beq t0, zero, divide
      
