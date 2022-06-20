@@ -1,78 +1,71 @@
+.section .data
+
+negativo:
+    .word 0x2d
 
 .section .text
 
 main:   
-    #addi sp, sp, -20
-    addi t3, zero, 2
-    addi t4, zero, 0
-    addi t5, zero, 1
+    addi t5, zero, 1 # Comparador do valor 1
 
+    addi t4, zero, 0 # Contador de sinal
 
-    addi t2, zero, -8
+    addi t0, zero, -5 # Numero 1 - Trocar por s
+    addi t1, zero, -3 # Numero 2 - Trocar por s
 
-    addi t3, zero, -7
-    # add t3, t3, t3
+    addi t3, t0, 0 # t3 - Temporario para inverter se precisar
 
+    call checksignal
 
-    sub t3, zero, t3
+    addi t0, t3, 0
 
-    add t4, t3, t2
+    addi t3, t1, 0
 
-    sub t4, zero, t4
+    call checksignal
 
-    addi t3, zero, -7
-
-
-    addi t2, zero, -7
-    add t1, t3, t3
-
-
-    call askfornumber1
-    call askfornumber2
+    addi t1, t3, 0
 
     call mult
 
-    # addi s0, s0, 4
+checksignal: 
+    blt t3, zero, inverte
+    ret
 
-
-        #lw a0, a0, 4
-    #addi t0, zero, 1
-    # addi a1, zero, 20
-    #ecall
-
-
-askfornumber1:
-    addi t0, zero, 4
-    ecall
-
-   addi s0, a0, 0 # Multiplicando (o que vai EM CIMA) desloca pra ESQUERDA
-    
-    jr ra
-
-askfornumber2:
-    addi t0, zero, 4
-    ecall
-
-   addi s1, a0, 0 # Multiplicador (o que vai embaixo) desloca para a DIREITA
-    
-    jr ra
-
+inverte:
+    sub t3, zero, t3
+    addi t4, t4, 1
+    ret 
 
 mult:
-    andi t1, s1, 1 
+    andi s1, t1, 1 
+    beq s1, t5, soma 
 
-    beq t1, t5, soma 
+    continuamultiplicacao: 
+        slli t0, t0, 1
+        srli t1, t1, 1
 
-    glub: 
-    slli s0, s0, 1
-    srli s1, s1, 1
+        bne s1, zero, mult
 
-    bne s1, zero, mult
+    beq t4, t5, printnumsinal
+    
+    call printnum
 
     jr ra
 
-
 soma: 
-    add s2, s2, s0 
+    add s2, s2, t0 
+    j continuamultiplicacao
 
-    j glub 
+printnumsinal:
+    lui a0, %hi(negativo)
+    addi a0, a0, %lo(negativo)
+
+    addi t0, zero, 3
+    addi a1,zero,4
+    ecall
+
+    printnum:
+        addi a0, s2, 0
+
+        addi t0, zero, 1
+        ecall
