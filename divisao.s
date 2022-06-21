@@ -6,12 +6,15 @@ negativo:
 .section .text
 
 main:   
+    addi t6, zero, 33
+    addi t5, zero, 0
+
     addi t5, zero, 1  
 
     addi t4, zero, 0 
 
-    addi t0, zero, 2147483648
-    addi t1, zero, 2147483648
+    addi t0, zero, 178 # 12 R: 35
+    addi t1, zero, 5 # 2 R: 3
 
     addi s3, zero, 0 
     addi s4, zero, 0 
@@ -41,42 +44,34 @@ inverte:
 
 divide:
     andi s5, t0, 2147483648 
+    sltu s5, zero, s5  
     
-    slt s6, s5, zero  
+    bltu s3, t1, notPossibleToSub
     
-    bltu s3, t1, glub 
-    
-    voltadoglub:
-    bge s4, t1, glublgub
+    checaNovoResto:
+        bgeu s3, t1, possibleToSub
 
-    voltadoglubglub:
-    slli t0, t0, 1
+    deslocaNumerador:
+        slli t0, t0, 1
 
-    beq t0, zero, divide
-     
+    addi t5, t5, 1
+    bne t5, t6, divide
 
-glub:
+    jr ra
+
+notPossibleToSub:
     slli s3, s3, 1
     slli s4, s4, 1
+    or s3, s3, s5
 
-    or s3, s3, s6 
-    ori s4, s4, 0
+    j checaNovoResto
 
-    j voltadoglub
-
-glublgub:
-    ori s4, s4, 0
-    slli s4, s4, 1
-
+possibleToSub:
     ori s4, s4, 1
 
     sub s3, s3, t1
 
-    j  voltadoglubglub 
-
-soma: 
-    add s2, s2, t0 
-    j continuamultiplicacao
+    j  deslocaNumerador 
 
 printnumsinal:
     lui a0, %hi(negativo)
