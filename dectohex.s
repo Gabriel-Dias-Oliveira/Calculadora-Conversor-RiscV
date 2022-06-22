@@ -1,11 +1,36 @@
 .section .data
 
-negativo:
-    .word 0x2d
+zerox:
+    .word 0x00007830
+
+decimalnumber:
+	.word 0x0
+	.word 0x0
+	.word 0x0
+	.word 0x0
+	.word 0x0
+	.word 0x0
+	.word 0x0
+	.word 0x0
 
 .section .text
 
-main:   
+main:
+    addi t1, zero, 2147483648
+
+    addi s6, zero, 16
+
+    addi t0, zero, 4
+    ecall
+
+    # lui a0, %hi(zerox)
+    # addi a0, a0, %lo(zerox)
+    # addi a1, zero, 2
+
+    # addi t0, zero, 3
+    # ecall
+
+
     addi t6, zero, 33
     addi t5, zero, 0
 
@@ -13,34 +38,14 @@ main:
 
     addi t4, zero, 0 
 
-    addi t0, zero, 15 # 12 R: 35
+    add t0, zero, a0 # 12 R: 35
     addi t1, zero, 16 # 2 R: 3
 
     addi s3, zero, 0 
     addi s4, zero, 0 
 
-    addi t3, t0, 0 
-
-    call checksignal
-
-    addi t0, t3, 0
-
-    addi t3, t1, 0
-
-    call checksignal
-
-    addi t1, t3, 0
-
     call divide
 
-checksignal: 
-    blt t3, zero, inverte
-    ret
-
-inverte:
-    sub t3, zero, t3
-    addi t4, t4, 1
-    ret 
 
 divide:
     andi s5, t0, 2147483648 
@@ -73,16 +78,12 @@ possibleToSub:
 
     j  deslocaNumerador 
 
-printnumsinal:
-    lui a0, %hi(negativo)
-    addi a0, a0, %lo(negativo)
 
-    addi t0, zero, 3
-    addi a1,zero,4
-    ecall
+converttozero:
+    slli s6, s6, 1
+    j generatedecimal    
 
-    printnum:
-        addi a0, s2, 0
-
-        addi t0, zero, 1
-        ecall
+converttoone:
+    slli s6, s6, 1
+    ori s6, s6, 1
+    j generatedecimal

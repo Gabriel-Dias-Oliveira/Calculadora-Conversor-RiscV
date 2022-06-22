@@ -1,9 +1,5 @@
 .section .data
 
-negativo:
-    .word 0x2d
-
-
 binarynumber:
 	.word 0x00000000
 	.word 0x00000000
