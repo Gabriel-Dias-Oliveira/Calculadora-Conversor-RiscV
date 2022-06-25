@@ -10,8 +10,8 @@ main:
 
     addi t4, zero, 0 # Contador de sinal
 
-    addi t0, zero, -5 # Numero 1 - Trocar por s
-    addi t1, zero, -3 # Numero 2 - Trocar por s
+    addi t0, zero, 32 # Numero 1 - Trocar por s
+    addi t1, zero, 4 # Numero 2 - Trocar por s
 
     addi t3, t0, 0 # t3 - Temporario para inverter se precisar
 
@@ -44,7 +44,7 @@ mult:
         slli t0, t0, 1
         srli t1, t1, 1
 
-        bne s1, zero, mult
+        bne t1, zero, mult
 
     beq t4, t5, printnumsinal
     

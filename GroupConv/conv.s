@@ -26,11 +26,59 @@ shifted:
 binaryblock:
 	.word 0x00000000
 
+menu:
+	.word 0x65642031
+	.word 0x3e2d2063
+	.word 0x78656820
+	.word 0x32207c20
+	.word 0x78656820
+	.word 0x203e2d20
+	.word 0x20636564
+	.word 0x2033207c
+	.word 0x20636564
+	.word 0x62203e2d
+	.word 0x7c206e69
+	.word 0x62203420
+	.word 0x2d206e69
+	.word 0x6564203e
+	.word 0x207c2063
+	.word 0x69622035
+	.word 0x3e2d206e
+	.word 0x78656820
+	.word 0x36207c20
+	.word 0x78656820
+	.word 0x203e2d20
+	.word 0x2e6e6962
+	.word 0x203e2d20
+	.word 0x00000000
+
+asknumber:
+	.word 0x69736e49
+	.word 0x6f206172
+	.word 0x6d756e20
+	.word 0x3a6f7265
+	.word 0x00000000
+
+resultmsg:
+    .word 0x6572204f
+	.word 0x746c7573
+	.word 0x206f6461
+	.word 0x203a6865
+	.word 0x00000000
+
+
 .section .text
 
 main:
     addi sp, sp, -4
     sw ra, 0(sp)
+
+    lui a0, %hi(menu)
+    addi a0, a0, %lo(menu)
+    addi a1, zero, 96
+
+    addi t0, zero, 3
+    ecall
 
     addi t0, zero, 4
     ecall
@@ -63,14 +111,58 @@ convhextodec:
     call printresult
 
 readnumber:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    call printreadmsg
+
     addi t0, zero, 4
     ecall
 
     add s0, a0, zero 
 
+    call end
+
+readstring:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    call printreadmsg
+
+    lui a0, %hi(binarynumber)
+    addi a0, a0, %lo(binarynumber)
+
+    addi a1, zero, 32
+    addi t0, zero, 6
+    ecall
+
+    add s1, a0, zero # s1 guarda o endereco do numero
+
+    call end
+
+printreadmsg:
+    lui a0, %hi(asknumber)
+    addi a0, a0, %lo(asknumber)
+    addi a1, zero, 20
+
+    addi t0, zero, 3
+    ecall
+
     ret
+    
+printresultmsg:
+    lui a0, %hi(resultmsg)
+    addi a0, a0, %lo(resultmsg)
+    addi a1, zero, 20
+
+    addi t0, zero, 3
+    ecall
+
+    ret 
 
 printresult:
+    call printresultmsg
+
     add a0, s3, zero 
     addi t0, zero, 1
     ecall
@@ -87,6 +179,7 @@ convdectobin:
     
     addi s1, s1, -1
 
+    call printresultmsg
     call printnumbin
 
 convertprabin:
@@ -132,18 +225,6 @@ convbintodec:
     call generatedecimal
     call printresult
 
-readstring:
-    lui a0, %hi(binarynumber)
-    addi a0, a0, %lo(binarynumber)
-
-    addi a1, zero, 32
-    addi t0, zero, 6
-    ecall
-
-    add s1, a0, zero # s1 guarda o endereco do numero
-
-    ret
-
 generatedecimal:
     lbu s2, 0(s1)
     addi s1, s1, 1
@@ -172,10 +253,11 @@ convbintohex:
     addi t6, zero, 32 # Quantidade de bits a serem olhados diminui de 4 em 4
     addi s4, s4, 31 # Comeca a olhar s4 da ultima posicao MSB 0000000000000xxxx 
 
-    addi t1, zero, 4
+    addi t1, zero, 5
     beq s2, t1, useauxword # Se o binario vem da entrada eh preciso inverter ele para o formato 00000xxxxx
     
     startconversion:
+    call printresultmsg
     call printzerox
 
     for:                
@@ -289,9 +371,9 @@ converttoonehex:
 
 printascii: 
     addi t5, zero, 10  # Se valor maior que 1 entao precio printar letra
+    addi t0, zero, 2
     bgeu s3, t5, printletter
     bltu s3, t5, printnumber
-    addi t0, zero, 2
 
     printletter: 
         addi a0, s3, 87

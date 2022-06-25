@@ -20,6 +20,9 @@ askforoperation:
 	.word 0x2033207c
 	.word 0x207c202a
 	.word 0x202f2034
+	.word 0x7c203e2d
+	.word 0x53203520
+	.word 0x20706f74
 	.word 0x00203e2d
 
 resultmsg:
@@ -35,44 +38,71 @@ restdiv:
 	.word 0x203a6865
 	.word 0x00000000
 
+divisaozero:
+	.word 0x69766944
+	.word 0x206f6173
+	.word 0x20726f70
+	.word 0x00000030
+
+pulalinha: 
+    .word 0x0d0a 
+
 .section .text
 
 main:
     addi sp, sp, -4
     sw ra, 0(sp)
 
-    call asknumbers
-    add s0, zero, a0 # digito 1
-    
-    call asknumbers
-    add s1, zero, a0 # digito 1
 
-    lui a0, %hi(askforoperation)
-    addi a0, a0, %lo(askforoperation)
+    loop:
+        lui a0, %hi(askforoperation)
+        addi a0, a0, %lo(askforoperation)
+
+        addi t0, zero, 3
+        addi a1, zero, 52
+        ecall
+
+        addi t0, zero, 4
+        ecall
+        add s2, zero, a0 # Operacao
+
+        call asknumbers
+        add s0, zero, a0 # digito 1
+        
+        call asknumbers
+        add s1, zero, a0 # digito 1
+
+        # call breakline
+
+        addi t1, zero, 1 # Comparador de operacoes
+
+        beq s2, t1, adicao
+
+        addi t1, zero, 2
+
+        beq s2, t1, subtracao
+
+        addi t1, zero, 3
+
+        beq s2, t1, multiplicaco
+
+        addi t1, zero, 4
+
+        beq s2, t1, divisao
+    
+        addi t1, zero, 6
+
+        beq s2, t1, end
+
+breakline:
+    lui a0, %hi(pulalinha)
+    addi a0, a0, %lo(pulalinha)
 
     addi t0, zero, 3
-    addi a1, zero, 40
+    addi a1, zero, 4
     ecall
 
-    addi t0, zero, 4
-    ecall
-
-    add s2, zero, a0 # Operacao
-    addi t1, zero, 1 # Comparador de operacoes
-
-    beq s2, t1, adicao
-
-    addi t1, zero, 2
-
-    beq s2, t1, subtracao
-
-    addi t1, zero, 3
-
-    beq s2, t1, multiplicaco
-
-    addi t1, zero, 4
-
-    beq s2, t1, divisao
+    ret
 
 asknumbers:
     lui a0, %hi(askfornumber)
@@ -117,6 +147,8 @@ multiplicaco:
     call mult
 
 divisao:   
+    beq s1, zero, divisaoporzero
+
     addi t2, zero, 1 # Comparador do valor 1
     addi t3, zero, 0 # Contador de sinal
     addi t4, s0, 0 # t4 - Temporario para inverter se precisar
@@ -136,6 +168,18 @@ divisao:
     addi s1, t4, 0
 
     call divide
+
+divisaoporzero:
+    lui a0, %hi(divisaozero)
+    addi a0, a0, %lo(divisaozero)
+
+    addi t0, zero, 3
+    addi a1, zero, 16
+    ecall
+
+    call breakline
+    
+    j loop
 
 divide:
     andi s4, s0, 2147483648  # s4 - guarda o resultado do AND, MSB
@@ -174,7 +218,7 @@ printresultadodivisao:
     addi a0, a0, %lo(restdiv)
 
     addi t0, zero, 3
-    addi a1, zero, 20
+    addi a1, zero, 16
     ecall
 
     addi t0, zero, 1
@@ -206,7 +250,7 @@ mult:
         slli s0, s0, 1 # shift operando 1  
         srli s1, s1, 1 # shift operando 2
 
-        bne s4, zero, mult
+        bne s1, zero, mult
 
     beq t3, t2, printnumsinal # Se so tem 1 numero negativo entao Resultado negativo
     
@@ -233,19 +277,21 @@ printnumsinal:
     addi a1, zero, 4
     ecall
 
-# chamado se resultado maior 0 
+    j numero
+
+    # chamado se resultado maior 0     
     printnum: 
         call printresultmessage
-
+        
+        numero:
         addi a0, s3, 0
         addi t0, zero, 1
 
         ecall
 
-    lw ra, 0(sp)
-    addi sp, sp, 4
+    call breakline
 
-    ret 
+    j loop
 
 printresultmessage:
     lui a0, %hi(resultmsg)
@@ -256,3 +302,9 @@ printresultmessage:
     ecall
 
     ret 
+
+end:
+    lw ra, 0(sp)
+    addi sp, sp, 4
+    
+    ret
