@@ -14,7 +14,7 @@ binarynumber:
 
 
 main:
-    addi t1, zero, 20
+    addi t1, zero, 10
 
     lui s0, %hi(binarynumber)
     addi s0, s0, %lo(binarynumber)

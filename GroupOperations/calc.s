@@ -57,8 +57,8 @@ main:
     addi t0, zero, 4
     ecall
 
-    add s2, zero, a0 # operacao
-    addi t1, zero, 1
+    add s2, zero, a0 # Operacao
+    addi t1, zero, 1 # Comparador de operacoes
 
     beq s2, t1, adicao
 
