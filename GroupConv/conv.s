@@ -1,15 +1,29 @@
 .section .data
 
-
+zerox:
+    .word 0x00007830
 
 binarynumber:
-	.word 0x00000000
-	.word 0x00000000
-	.word 0x00000000
-	.word 0x00000000
-	.word 0x00000000
-	.word 0x00000000
-	.word 0x00000000
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+
+shifted:
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    .word 0x30303030
+    
+binaryblock:
 	.word 0x00000000
 
 .section .text
@@ -22,17 +36,24 @@ main:
     ecall
 
     add s2, zero, a0 # Operacao
-    addi t1, zero, 1 # Comparador de operacoes
 
+    addi t1, zero, 1
+    beq s2, t1, convdectohex
+
+    addi t1, zero, 2 # Comparador de operacoes
     beq s2, t1, convhextodec
 
-    addi t1, zero, 2
-
+    addi t1, zero, 3
     beq s2, t1, convdectobin
 
-    addi t1, zero, 3
-
+    addi t1, zero, 4
     beq s2, t1, convbintodec
+
+    addi t1, zero, 5
+    beq s2, t1, convbintohex
+
+    addi t1, zero, 6
+    beq s2, t1, convhextobin
 
 convhextodec:
     call readnumber
@@ -72,39 +93,39 @@ convertprabin:
     andi s2, s0, 1 # s2 Guarda o LSB do numero
     addi t2, t2, 1 # Contador do tamanho do binario
 
-    sb s2, 0(s1)   
-    addi s1, s1, 1
+    beq s2, zero, changetozeroascii
+    bne s2, zero, changetooneascii
 
-    srli s0, s0, 1
+    savevalue:
+        sb s2, 0(s1)   
+        addi s1, s1, 1
 
-    bne s0, zero, convertprabin
+        srli s0, s0, 1
+
+        bne s0, zero, convertprabin
 
     ret 
 
 printnumbin:
-    lb a0, 0(s1)
+    lbu a0, 0(s1)
 
-    beq a0, zero, changetozeroascii
-    bne a0, zero, changetooneascii
+    addi t0, zero, 2
+    ecall
 
-    print:
-		addi t0, zero, 2
-		ecall
+    addi s1, s1, -1
+    addi t2, t2, -1
 
-		addi s1, s1, -1
-		addi t2, t2, -1
-
-		bne t2, zero, printnumbin
+    bne t2, zero, printnumbin
 
     call end
 
 changetozeroascii:
-    addi a0, zero, 0x30
-    j print
+    addi s2, zero, 0x30
+    j savevalue
 
 changetooneascii:
-    addi a0, zero, 0x31
-    j print
+    addi s2, zero, 0x31
+    j savevalue
 
 convbintodec:
     call readstring
@@ -147,31 +168,158 @@ converttoone:
     ori s3, s3, 1
     j generatedecimal
 
+convbintohex:
+    addi t6, zero, 32 # Quantidade de bits a serem olhados diminui de 4 em 4
+    addi s4, s4, 31 # Comeca a olhar s4 da ultima posicao MSB 0000000000000xxxx 
 
+    addi t1, zero, 4
+    beq s2, t1, useauxword # Se o binario vem da entrada eh preciso inverter ele para o formato 00000xxxxx
+    
+    startconversion:
+    call printzerox
 
+    for:                
+        addi t4, zero, 4 # Contador para o bloco de 4 bits
+        
+        lui s5, %hi(binaryblock) # Guarda o endereco do bloco de bits a ser olhado
+        addi s5, s5, %lo(binaryblock)
 
+        beq t6, zero, end
 
+        call createblock
 
+        printhexnumber:
+            addi s5, s5, -4
+            addi t4, zero, 4
+            addi s3, zero, 0
+            
+            call foundnumberascii
 
+useauxword:
+    addi sp, sp, -4 
+    sw ra, 0(sp)
 
+    call readstring
 
+    lui s4, %hi(shifted) # Guarda o endereco do valor a ser invertido 
+    addi s4, s4, %lo(shifted)
 
+    call countbinarysize
+    add s4, s4, t2 #ret Pula em s4 par inverter o numero 0101 vira 000001010
+    addi s4, s4, -1
 
+    call invertenumero
 
+    addi s4, s4, 32 # Comeca a olhar s4 da ultima posicao MSB 0000000000000xxxx 
 
+    j startconversion
 
+printzerox:
+    lui a0, %hi(zerox)
+    addi a0, a0, %lo(zerox)
+    addi a1, zero, 2
 
+    addi t0, zero, 3
+    ecall
 
+    ret 
 
+countbinarysize:    
+    addi t2, t2, 1 # Contador do tamanho do binario
+    lbu s2, 0(s1)
+    addi s1, s1, 1
+    
+    addi t3, zero, 0x20 # Comparador do valor vazio Fim do numero
+    bne s2, t3, countbinarysize
 
+    sub s1, s1, t2 # Volta s1 para o comeco do numero
+    addi t2, t2, -1
 
+    ret
 
+invertenumero:
+   addi t3, zero, 0 # Contador pro for da inversao
+    
+    invert: 
+        lbu s2, 0(s1)    
+        sb s2, 0(s4)
+        addi s1, s1, 1
+        addi t3, t3, 1
+        addi s4, s4, -1
 
+        bne t3, t2, invert
 
+    ret 
 
+createblock:
+    lbu s1, 0(s4)
 
+    sb s1, 0(s5)  
+    addi s4, s4, -1
+    addi s5, s5, 1
 
+    addi t4, t4, -1 
+    
+    bne t4, zero, createblock  
+    
+    addi t6, t6, -4
+ 
+    ret
 
+foundnumberascii:
+    beq t4, zero, printascii
+    addi t4, t4, -1
+
+    lbu s1, 0(s5)
+    addi s5, s5, 1
+
+    addi s2, zero, 0x31
+
+    beq s1, s2, converttoonehex
+    bne s1, s2, converttozerohex
+
+converttozerohex:
+    slli s3, s3, 1
+    j foundnumberascii    
+
+converttoonehex:
+    slli s3, s3, 1
+    ori s3, s3, 1
+    j foundnumberascii
+
+printascii: 
+    addi t5, zero, 10  # Se valor maior que 1 entao precio printar letra
+    bgeu s3, t5, printletter
+    bltu s3, t5, printnumber
+    addi t0, zero, 2
+
+    printletter: 
+        addi a0, s3, 87
+        ecall
+
+        j for
+
+     printnumber: 
+        addi a0, s3, 48
+        ecall
+
+        j for  
+
+convdectohex:
+    call readnumber
+
+    lui s1, %hi(binarynumber) # s1 responsavel por guardar o endereco do numero na memoria 
+    addi s1, s1, %lo(binarynumber)
+
+    call convertprabin
+
+    lui s4, %hi(binarynumber) # s4 responsavel por guardar o endereco do numero na memoria para conversao hexa
+    addi s4, s4, %lo(binarynumber)
+
+    call convbintohex
+
+convhextobin:
+    call convdectobin    
 
 end:
     lw ra, 0(sp)

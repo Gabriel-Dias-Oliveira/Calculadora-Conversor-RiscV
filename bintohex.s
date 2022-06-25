@@ -54,7 +54,7 @@ main:
     call countbinarysize
     add s4, s4, t3
     addi s4, s4, -1
-    addi s0, s0, -1
+    # addi s0, s0, -1
 
     addi t0, zero, 0
     
@@ -95,15 +95,15 @@ countbinarysize:
     addi t2, zero, 0x20
     bne s2, t2, countbinarysize
 
-    addi t3, t3, -1
     sub s0, s0, t3
+    addi t3, t3, -1
 
     ret
 
 createblock:
     lbu s1, 0(s4)
 
-    sw s1, 0(s3)
+    sb s1, 0(s3)
     addi s4, s4, -1
     addi s3, s3, 1
 
@@ -119,7 +119,7 @@ generatedecimal:
     beq s5, zero, print
     addi s5, s5, -1
 
-    addi t2, t2, 1
+    # addi t2, t2, 1
 
     lbu s1, 0(s3)
     addi s3, s3, 1
