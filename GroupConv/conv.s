@@ -66,12 +66,16 @@ resultmsg:
 	.word 0x203a6865
 	.word 0x00000000
 
+pulalinha: 
+    .word 0x0d0a 
 
 .section .text
 
 main:
     addi sp, sp, -4
     sw ra, 0(sp)
+
+    call breakline
 
     lui a0, %hi(menu)
     addi a0, a0, %lo(menu)
@@ -85,10 +89,10 @@ main:
 
     add s2, zero, a0 # Operacao
 
-    addi t1, zero, 1
+    addi t1, zero, 1 # Comparador de operacoes
     beq s2, t1, convdectohex
 
-    addi t1, zero, 2 # Comparador de operacoes
+    addi t1, zero, 2 
     beq s2, t1, convhextodec
 
     addi t1, zero, 3
@@ -102,6 +106,17 @@ main:
 
     addi t1, zero, 6
     beq s2, t1, convhextobin
+
+
+breakline:
+    lui a0, %hi(pulalinha)
+    addi a0, a0, %lo(pulalinha)
+
+    addi t0, zero, 3
+    addi a1, zero, 4
+    ecall
+
+    ret
 
 convhextodec:
     call readnumber
@@ -278,9 +293,6 @@ convbintohex:
             call foundnumberascii
 
 useauxword:
-    addi sp, sp, -4 
-    sw ra, 0(sp)
-
     call readstring
 
     lui s4, %hi(shifted) # Guarda o endereco do valor a ser invertido 

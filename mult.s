@@ -10,8 +10,8 @@ main:
 
     addi t4, zero, 0 # Contador de sinal
 
-    addi t0, zero, 32 # Numero 1 - Trocar por s
-    addi t1, zero, 4 # Numero 2 - Trocar por s
+    addi t0, zero, 25 # Numero 1 - Trocar por s
+    addi t1, zero, -5 # Numero 2 - Trocar por s
 
     addi t3, t0, 0 # t3 - Temporario para inverter se precisar
 

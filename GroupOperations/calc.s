@@ -53,7 +53,6 @@ main:
     addi sp, sp, -4
     sw ra, 0(sp)
 
-
     loop:
         lui a0, %hi(askforoperation)
         addi a0, a0, %lo(askforoperation)
@@ -66,13 +65,17 @@ main:
         ecall
         add s2, zero, a0 # Operacao
 
+        addi t1, zero, 5
+
+        beq s2, t1, end 
+
         call asknumbers
         add s0, zero, a0 # digito 1
         
         call asknumbers
         add s1, zero, a0 # digito 1
 
-        # call breakline
+        addi s3, zero, 0 # s3 ira guardar o resultado da operacao
 
         addi t1, zero, 1 # Comparador de operacoes
 
@@ -89,10 +92,6 @@ main:
         addi t1, zero, 4
 
         beq s2, t1, divisao
-    
-        addi t1, zero, 6
-
-        beq s2, t1, end
 
 breakline:
     lui a0, %hi(pulalinha)
